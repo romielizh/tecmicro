@@ -4,7 +4,7 @@
  * Created: 10/24/2023 2:43:14 PM
  *  Author: • Σπ↑£↑Θ •
  */ 
-
+//esto es un cambio
 #include <xc.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
