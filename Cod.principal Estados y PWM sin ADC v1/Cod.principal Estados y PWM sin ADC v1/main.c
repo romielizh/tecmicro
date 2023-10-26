@@ -2,20 +2,64 @@
  * main.c
  *
  * Created: 10/24/2023 2:43:14 PM
- *  Author: • Σπ↑£↑Θ •
+ *  Author: César, Emilio, Romina
  */ 
-//esto es un cambio
+
+//**************************************************************************************************//
+
 #include <xc.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
-//#include <util/delay.h>
+#include <util/delay.h>
+#include <avr/eeprom.h>
+
+#define F_CPU 16000000UL 
+
+//******************************************---ESTADOS---******************************************//
 
 typedef enum{Reposo,Sensor,Reversa,Giro,Velo1,Velo2,Velo3,Velo4,cestados}estados;
-
 estados Emi;
+
+//******************************************---ADC---******************************************//
+
+#define Umbral 630 //ejemplo lo tenemos que variar
+#define Pin 0 // pin
+
+void ADC_init()
+{
+
+	ADMUX = (1<<REFS0) | Pin;
+	ADCSRA = (1<<ADEN)|(7<<ADPS0);
+}
+
+uint16_t ADC_read()
+{
+
+	ADCSRA |= (1<<ADSC);
+	while(ADCSRA & (1<<ADSC));
+
+	return (ADC);
+}
+
+	uint16_t adc_result;
+
+void usarADC()
+{
+	adc_result = ADC_read();
+
+	if(adc_result > Umbral)
+	PORTD |= (1<<PD1);
+	else
+	PORTD &= ~(1<<PD1);
+}
+
+//**************************************************************************************************//
 
 int chocaste=0;
 int start_stop=0;
+uint8_t choques = 0;
+uint16_t adress = 0; 
+
 
 void StartButton()
 {
@@ -29,19 +73,25 @@ void ChoqueButton()
 {
 	if (PIND & (1 << PIND7)) // Lee el valor del pin PD7 CHOQUE
 	{
-		chocaste=1;
+		chocaste = 1;
+		choques = choques + 1;
 	}
 }
+
+//******************************************---ESTADOS---******************************************//
 
 void ReposoF()
 {
 
+	usarADC();
 	PORTD |= (1<<DDD2); //Encendido Verde
 	PORTD |= (1<<DDD4); //Encendido Rojo
 	PORTB |= (0 << DDB1)|(0 << DDB2)|(0 << DDB3)|(0 << DDB4);
 
 	StartButton();
 
+	eeprom_update_byte((uint8_t*)adress, choques);
+	
 	if (start_stop==1)
 	{
 		Emi=Sensor;
@@ -51,6 +101,7 @@ void ReposoF()
 
 void SensorF()
 {
+	usarADC();
 	PORTD |= (1<<DDD4); //Encendido Rojo
 	PORTD &= (0<<DDD2); //Apagado Verde
 	
@@ -69,31 +120,33 @@ void SensorF()
 
 void ReversaF()
 {
+	usarADC();
 	// Ajustar los ciclos de trabajo para OC0A (PD6) y OC0B (PD5)
 	OCR0A = 0x40;  // Configuración de un ciclo de trabajo del 25% en OC0A
 	OCR0B = 0x40;   // Configuración de un ciclo de trabajo del 25% en OC0B
 	
 	PORTB |= (0 << DDB1)|(1 << DDB2)|(0 << DDB3)|(1 << DDB4); //Motores en reversa mami
 	
-	//_delay_ms(500);
+	_delay_ms(500);
 	Emi=Giro;
 }
 
 void GiroF()
 {
-	
+	usarADC();
 	// Ajustar los ciclos de trabajo para OC0A (PD6) y OC0B (PD5)
 	OCR0A = 0x40;  // Configuración de un ciclo de trabajo del 25% en OC0A
 	OCR0B = 0x40;   // Configuración de un ciclo de trabajo del 25% en OC0B
 	
 	PORTB |= (1 << DDB1)|(0 << DDB2)|(0 << DDB3)|(1 << DDB4); //Motores siguen girando
 	
-	//_delay_ms(5000);
+	_delay_ms(5000);
 	Emi=Sensor;
 }
 
 void Velo1F()
 {
+	usarADC();
 	PORTD |= (1<<DDD2); //Encendido Verde
 	PORTD &= (0<<DDD4); //Apagado Rojo
 	
@@ -123,6 +176,7 @@ void Velo1F()
 
 void Velo2F()
 {
+	usarADC();
 	// Ajustar los ciclos de trabajo para OC0A (PD6) y OC0B (PD5)
 	OCR0A = 0x4D;  // Configuración de un ciclo de trabajo del 30% en OC0A
 	OCR0B = 0x4D;   // Configuración de un ciclo de trabajo del 30% en OC0B
@@ -159,6 +213,8 @@ void Velo4F()
 	//VERIFICACION de SENSOR
 }
 
+//********************************************---PWM---********************************************//
+
 void PWMconfig()
 {
 	// Configurar Timer0 para PWM no invertido en OC0A (PD6) y OC0B (PD5)
@@ -168,6 +224,8 @@ void PWMconfig()
 	// Configurar los pines OC0A (PD6) y OC0B (PD5) como salidas
 	DDRD |= (1 << DDD6) | (1 << DDD5);
 }
+
+//******************************************---INICIO---******************************************//
 
 int main(void)
 {
@@ -201,6 +259,10 @@ int main(void)
 	func[Velo4]=Velo4F;
   
 	Emi=Reposo;
+	
+	//                       ADC
+	ADC_init();
+	DDRD |= (1<<PD1);
 	
 	while (1) 
 	{
