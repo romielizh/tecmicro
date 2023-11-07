@@ -30,10 +30,10 @@ void setStepX(int step)
 	// Tabla de pasos
 	int sequence[4][4] =
 	{
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0}
+		{1, 0, 1, 0},
+		{0, 1, 1, 0}, //ésta tabla funciona
+		{0, 1, 0, 1},
+		{1, 0, 0, 1}
 	};
 
 	// Configura los pines del puente HX según la tabla
