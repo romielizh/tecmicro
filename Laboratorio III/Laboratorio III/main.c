@@ -30,10 +30,10 @@ void setStepX(int step)
 	// Tabla de pasos
 	int sequence[4][4] =
 	{
-		{1, 0, 0, 0},
-		{0, 1, 0, 0},
-		{0, 0, 1, 0},
-		{0, 0, 0, 1}
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0}
 	};
 
 	// Configura los pines del puente HX según la tabla
@@ -88,9 +88,9 @@ void setStepY(int step)
 	int sequence[4][4] =
 	{
 		{1, 0, 1, 0},
-		{1, 0, 0, 1},
+		{0, 1, 1, 0}, //ésta tabla funciona
 		{0, 1, 0, 1},
-		{0, 1, 1, 0}
+		{1, 0, 0, 1}
 	};
 
 	// Configura los pines del puente HY según la tabla
@@ -154,7 +154,7 @@ int main(void)
 		{
 			setStepX(i);
 			setStepY(i);
-			_delay_ms(1000);										// Ajuste de tiempo entre pasos según la velocidad deseada
+			_delay_ms(100);										// Ajuste de tiempo entre pasos según la velocidad deseada
 		}
 	}
 

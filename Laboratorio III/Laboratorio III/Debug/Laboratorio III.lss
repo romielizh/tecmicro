@@ -3,88 +3,88 @@ Laboratorio III.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00000336  000003ca  2**0
+  0 .data         00000000  00800100  0000030c  000003a0  2**0
                   ALLOC, LOAD, DATA
   1 .text         000000c4  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      0000002f  00000000  00000000  000003ca  2**0
+  2 .comment      0000002f  00000000  00000000  000003a0  2**0
                   CONTENTS, READONLY
-  3 .stack.descriptors.hdr 0000000e  00000000  00000000  000003f9  2**0
+  3 .stack.descriptors.hdr 0000000e  00000000  00000000  000003cf  2**0
                   CONTENTS, READONLY
-  4 .debug_aranges 00000030  00000000  00000000  00000407  2**0
+  4 .debug_aranges 00000030  00000000  00000000  000003dd  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00000a3f  00000000  00000000  00000437  2**0
+  5 .debug_info   00000a3f  00000000  00000000  0000040d  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 000006df  00000000  00000000  00000e76  2**0
+  6 .debug_abbrev 000006df  00000000  00000000  00000e4c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   00000390  00000000  00000000  00001555  2**0
+  7 .debug_line   00000390  00000000  00000000  0000152b  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000064  00000000  00000000  000018e8  2**2
+  8 .debug_frame  00000064  00000000  00000000  000018bc  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000211  00000000  00000000  0000194c  2**0
+  9 .debug_str    00000211  00000000  00000000  00001920  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    00000142  00000000  00000000  00001b5d  2**0
+ 10 .debug_loc    00000142  00000000  00000000  00001b31  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000020  00000000  00000000  00001c9f  2**0
+ 11 .debug_ranges 00000020  00000000  00000000  00001c73  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .text         00000004  000002e8  000002e8  0000037c  2**1
+ 12 .text         00000004  000002de  000002de  00000372  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 13 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00001cc0  2**2
+ 13 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00001c94  2**2
                   CONTENTS, READONLY, DEBUGGING
- 14 .rodata       00000040  00800100  000002f6  0000038a  2**0
+ 14 .text.setStepX 000000e6  000001ae  000001ae  00000242  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 15 .rodata       00000020  00800100  000002ec  00000380  2**0
                   CONTENTS, ALLOC, LOAD, DATA
- 15 .text.setStepX 000000ea  000000c4  000000c4  00000158  2**1
+ 16 .text.setStepY 000000ea  000000c4  000000c4  00000158  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 16 .text.setStepY 000000ea  000001ae  000001ae  00000242  2**1
+ 17 .text.main    00000034  00000294  00000294  00000328  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 17 .text.main    0000003a  00000298  00000298  0000032c  2**1
+ 18 .text.__dummy_fini 00000002  000002e6  000002e6  0000037a  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 18 .text.__dummy_fini 00000002  000002f0  000002f0  00000384  2**1
+ 19 .text.__dummy_funcs_on_exit 00000002  000002e8  000002e8  0000037c  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 19 .text.__dummy_funcs_on_exit 00000002  000002f2  000002f2  00000386  2**1
+ 20 .text.__dummy_simulator_exit 00000002  000002ea  000002ea  0000037e  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 20 .text.__dummy_simulator_exit 00000002  000002f4  000002f4  00000388  2**1
+ 21 .text.exit    00000016  000002c8  000002c8  0000035c  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 21 .text.exit    00000016  000002d2  000002d2  00000366  2**1
-                  CONTENTS, ALLOC, LOAD, READONLY, CODE
- 22 .text._Exit   00000004  000002ec  000002ec  00000380  2**1
+ 22 .text._Exit   00000004  000002e2  000002e2  00000376  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
 
 Disassembly of section .text:
 
 00000000 <__vectors>:
    0:	0c 94 38 00 	jmp	0x70	; 0x70 <__ctors_end>
-   4:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-   8:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-   c:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  10:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  14:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  18:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  1c:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  20:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  24:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  28:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  2c:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  30:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  34:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  38:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  3c:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  40:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  44:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  48:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  4c:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  50:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  54:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  58:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  5c:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  60:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
-  64:	0c 94 74 01 	jmp	0x2e8	; 0x2e8 <__bad_interrupt>
+   4:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+   8:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+   c:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  10:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  14:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  18:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  1c:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  20:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  24:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  28:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  2c:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  30:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  34:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  38:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  3c:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  40:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  44:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  48:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  4c:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  50:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  54:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  58:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  5c:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  60:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
+  64:	0c 94 6f 01 	jmp	0x2de	; 0x2de <__bad_interrupt>
 
 00000068 <.dinit>:
   68:	01 00       	.word	0x0001	; ????
-  6a:	01 40       	sbci	r16, 0x01	; 1
+  6a:	01 20       	and	r0, r1
   6c:	00 02       	muls	r16, r16
-  6e:	f6 00       	.word	0x00f6	; ????
+  6e:	ec 00       	.word	0x00ec	; ????
 
 00000070 <__ctors_end>:
   70:	11 24       	eor	r1, r1
@@ -127,8 +127,8 @@ Disassembly of section .text:
   b2:	ef 36       	cpi	r30, 0x6F	; 111
   b4:	f4 07       	cpc	r31, r20
   b6:	31 f7       	brne	.-52     	; 0x84 <__do_copy_data+0x8>
-  b8:	0e 94 4c 01 	call	0x298	; 0x298 <main>
-  bc:	0c 94 69 01 	jmp	0x2d2	; 0x2d2 <exit>
+  b8:	0e 94 4a 01 	call	0x294	; 0x294 <main>
+  bc:	0c 94 64 01 	jmp	0x2c8	; 0x2c8 <exit>
 
 000000c0 <_exit>:
   c0:	f8 94       	cli
@@ -138,17 +138,197 @@ Disassembly of section .text:
 
 Disassembly of section .text:
 
-000002e8 <__bad_interrupt>:
- 2e8:	0c 94 00 00 	jmp	0	; 0x0 <__TEXT_REGION_ORIGIN__>
+000002de <__bad_interrupt>:
+ 2de:	0c 94 00 00 	jmp	0	; 0x0 <__TEXT_REGION_ORIGIN__>
 
 Disassembly of section .text.setStepX:
 
-000000c4 <setStepX>:
+000001ae <setStepX>:
 #define YIN4 PIND5
 
 //?????????????????????????????????????????????????????????????????????????????????????????//
 
 void setStepX(int step)
+{
+ 1ae:	cf 93       	push	r28
+ 1b0:	df 93       	push	r29
+ 1b2:	cd b7       	in	r28, 0x3d	; 61
+ 1b4:	de b7       	in	r29, 0x3e	; 62
+ 1b6:	a0 97       	sbiw	r28, 0x20	; 32
+ 1b8:	0f b6       	in	r0, 0x3f	; 63
+ 1ba:	f8 94       	cli
+ 1bc:	de bf       	out	0x3e, r29	; 62
+ 1be:	0f be       	out	0x3f, r0	; 63
+ 1c0:	cd bf       	out	0x3d, r28	; 61
+	// Tabla de pasos
+	int sequence[4][4] =
+ 1c2:	fe 01       	movw	r30, r28
+ 1c4:	31 96       	adiw	r30, 0x01	; 1
+ 1c6:	20 e2       	ldi	r18, 0x20	; 32
+ 1c8:	df 01       	movw	r26, r30
+ 1ca:	1d 92       	st	X+, r1
+ 1cc:	2a 95       	dec	r18
+ 1ce:	e9 f7       	brne	.-6      	; 0x1ca <setStepX+0x1c>
+		{0, 0, 0, 0},
+		{0, 0, 0, 0}
+	};
+
+	// Configura los pines del puente HX según la tabla
+	for (int i = 0; i < 4; i++)
+ 1d0:	20 e0       	ldi	r18, 0x00	; 0
+ 1d2:	30 e0       	ldi	r19, 0x00	; 0
+ 1d4:	52 c0       	rjmp	.+164    	; 0x27a <setStepX+0xcc>
+	{
+		if (sequence[step][i])
+ 1d6:	fc 01       	movw	r30, r24
+ 1d8:	ee 0f       	add	r30, r30
+ 1da:	ff 1f       	adc	r31, r31
+ 1dc:	ee 0f       	add	r30, r30
+ 1de:	ff 1f       	adc	r31, r31
+ 1e0:	e2 0f       	add	r30, r18
+ 1e2:	f3 1f       	adc	r31, r19
+ 1e4:	ee 0f       	add	r30, r30
+ 1e6:	ff 1f       	adc	r31, r31
+ 1e8:	41 e0       	ldi	r20, 0x01	; 1
+ 1ea:	50 e0       	ldi	r21, 0x00	; 0
+ 1ec:	4c 0f       	add	r20, r28
+ 1ee:	5d 1f       	adc	r21, r29
+ 1f0:	e4 0f       	add	r30, r20
+ 1f2:	f5 1f       	adc	r31, r21
+ 1f4:	40 81       	ld	r20, Z
+ 1f6:	51 81       	ldd	r21, Z+1	; 0x01
+ 1f8:	45 2b       	or	r20, r21
+ 1fa:	f9 f0       	breq	.+62     	; 0x23a <setStepX+0x8c>
+		{
+			// Configura el pin en alto
+			switch (i)
+ 1fc:	21 30       	cpi	r18, 0x01	; 1
+ 1fe:	31 05       	cpc	r19, r1
+ 200:	81 f0       	breq	.+32     	; 0x222 <setStepX+0x74>
+ 202:	24 f4       	brge	.+8      	; 0x20c <setStepX+0x5e>
+ 204:	21 15       	cp	r18, r1
+ 206:	31 05       	cpc	r19, r1
+ 208:	41 f0       	breq	.+16     	; 0x21a <setStepX+0x6c>
+ 20a:	35 c0       	rjmp	.+106    	; 0x276 <setStepX+0xc8>
+ 20c:	22 30       	cpi	r18, 0x02	; 2
+ 20e:	31 05       	cpc	r19, r1
+ 210:	61 f0       	breq	.+24     	; 0x22a <setStepX+0x7c>
+ 212:	23 30       	cpi	r18, 0x03	; 3
+ 214:	31 05       	cpc	r19, r1
+ 216:	69 f0       	breq	.+26     	; 0x232 <setStepX+0x84>
+ 218:	2e c0       	rjmp	.+92     	; 0x276 <setStepX+0xc8>
+			{
+				case 0:
+				PORTB |= (1 << XIN1);
+ 21a:	45 b1       	in	r20, 0x05	; 5
+ 21c:	41 60       	ori	r20, 0x01	; 1
+ 21e:	45 b9       	out	0x05, r20	; 5
+				break;
+ 220:	2a c0       	rjmp	.+84     	; 0x276 <setStepX+0xc8>
+				case 1:
+				PORTB |= (1 << XIN2);
+ 222:	45 b1       	in	r20, 0x05	; 5
+ 224:	42 60       	ori	r20, 0x02	; 2
+ 226:	45 b9       	out	0x05, r20	; 5
+				break;
+ 228:	26 c0       	rjmp	.+76     	; 0x276 <setStepX+0xc8>
+				case 2:
+				PORTB |= (1 << XIN3);
+ 22a:	45 b1       	in	r20, 0x05	; 5
+ 22c:	44 60       	ori	r20, 0x04	; 4
+ 22e:	45 b9       	out	0x05, r20	; 5
+				break;
+ 230:	22 c0       	rjmp	.+68     	; 0x276 <setStepX+0xc8>
+				case 3:
+				PORTB |= (1 << XIN4);
+ 232:	45 b1       	in	r20, 0x05	; 5
+ 234:	48 60       	ori	r20, 0x08	; 8
+ 236:	45 b9       	out	0x05, r20	; 5
+				break;
+ 238:	1e c0       	rjmp	.+60     	; 0x276 <setStepX+0xc8>
+			}
+		}
+		else
+		{
+			// Configura el pin en bajo
+			switch (i)
+ 23a:	21 30       	cpi	r18, 0x01	; 1
+ 23c:	31 05       	cpc	r19, r1
+ 23e:	81 f0       	breq	.+32     	; 0x260 <setStepX+0xb2>
+ 240:	24 f4       	brge	.+8      	; 0x24a <setStepX+0x9c>
+ 242:	21 15       	cp	r18, r1
+ 244:	31 05       	cpc	r19, r1
+ 246:	41 f0       	breq	.+16     	; 0x258 <setStepX+0xaa>
+ 248:	16 c0       	rjmp	.+44     	; 0x276 <setStepX+0xc8>
+ 24a:	22 30       	cpi	r18, 0x02	; 2
+ 24c:	31 05       	cpc	r19, r1
+ 24e:	61 f0       	breq	.+24     	; 0x268 <setStepX+0xba>
+ 250:	23 30       	cpi	r18, 0x03	; 3
+ 252:	31 05       	cpc	r19, r1
+ 254:	69 f0       	breq	.+26     	; 0x270 <setStepX+0xc2>
+ 256:	0f c0       	rjmp	.+30     	; 0x276 <setStepX+0xc8>
+			{
+				case 0:
+				PORTB &= ~(1 << XIN1);
+ 258:	45 b1       	in	r20, 0x05	; 5
+ 25a:	4e 7f       	andi	r20, 0xFE	; 254
+ 25c:	45 b9       	out	0x05, r20	; 5
+				break;
+ 25e:	0b c0       	rjmp	.+22     	; 0x276 <setStepX+0xc8>
+				case 1:
+				PORTB &= ~(1 << XIN2);
+ 260:	45 b1       	in	r20, 0x05	; 5
+ 262:	4d 7f       	andi	r20, 0xFD	; 253
+ 264:	45 b9       	out	0x05, r20	; 5
+				break;
+ 266:	07 c0       	rjmp	.+14     	; 0x276 <setStepX+0xc8>
+				case 2:
+				PORTB &= ~(1 << XIN3);
+ 268:	45 b1       	in	r20, 0x05	; 5
+ 26a:	4b 7f       	andi	r20, 0xFB	; 251
+ 26c:	45 b9       	out	0x05, r20	; 5
+				break;
+ 26e:	03 c0       	rjmp	.+6      	; 0x276 <setStepX+0xc8>
+				case 3:
+				PORTB &= ~(1 << XIN4);
+ 270:	45 b1       	in	r20, 0x05	; 5
+ 272:	47 7f       	andi	r20, 0xF7	; 247
+ 274:	45 b9       	out	0x05, r20	; 5
+		{0, 0, 0, 0},
+		{0, 0, 0, 0}
+	};
+
+	// Configura los pines del puente HX según la tabla
+	for (int i = 0; i < 4; i++)
+ 276:	2f 5f       	subi	r18, 0xFF	; 255
+ 278:	3f 4f       	sbci	r19, 0xFF	; 255
+ 27a:	24 30       	cpi	r18, 0x04	; 4
+ 27c:	31 05       	cpc	r19, r1
+ 27e:	0c f4       	brge	.+2      	; 0x282 <setStepX+0xd4>
+ 280:	aa cf       	rjmp	.-172    	; 0x1d6 <setStepX+0x28>
+				PORTB &= ~(1 << XIN4);
+				break;
+			}
+		}
+	}
+}
+ 282:	a0 96       	adiw	r28, 0x20	; 32
+ 284:	0f b6       	in	r0, 0x3f	; 63
+ 286:	f8 94       	cli
+ 288:	de bf       	out	0x3e, r29	; 62
+ 28a:	0f be       	out	0x3f, r0	; 63
+ 28c:	cd bf       	out	0x3d, r28	; 61
+ 28e:	df 91       	pop	r29
+ 290:	cf 91       	pop	r28
+ 292:	08 95       	ret
+
+Disassembly of section .text.setStepY:
+
+000000c4 <setStepY>:
+
+//?????????????????????????????????????????????????????????????????????????????????????????//
+
+void setStepY(int step)
 {
   c4:	cf 93       	push	r28
   c6:	df 93       	push	r29
@@ -170,16 +350,16 @@ void setStepX(int step)
   e2:	01 90       	ld	r0, Z+
   e4:	0d 92       	st	X+, r0
   e6:	2a 95       	dec	r18
-  e8:	e1 f7       	brne	.-8      	; 0xe2 <setStepX+0x1e>
-		{0, 0, 1, 0},
-		{0, 0, 0, 1}
+  e8:	e1 f7       	brne	.-8      	; 0xe2 <setStepY+0x1e>
+		{0, 1, 0, 1},
+		{1, 0, 0, 1}
 	};
 
-	// Configura los pines del puente HX según la tabla
+	// Configura los pines del puente HY según la tabla
 	for (int i = 0; i < 4; i++)
   ea:	20 e0       	ldi	r18, 0x00	; 0
   ec:	30 e0       	ldi	r19, 0x00	; 0
-  ee:	52 c0       	rjmp	.+164    	; 0x194 <setStepX+0xd0>
+  ee:	52 c0       	rjmp	.+164    	; 0x194 <setStepY+0xd0>
 	{
 		if (sequence[step][i])
   f0:	fc 01       	movw	r30, r24
@@ -200,54 +380,54 @@ void setStepX(int step)
  10e:	40 81       	ld	r20, Z
  110:	51 81       	ldd	r21, Z+1	; 0x01
  112:	45 2b       	or	r20, r21
- 114:	f9 f0       	breq	.+62     	; 0x154 <setStepX+0x90>
+ 114:	f9 f0       	breq	.+62     	; 0x154 <setStepY+0x90>
 		{
 			// Configura el pin en alto
 			switch (i)
  116:	21 30       	cpi	r18, 0x01	; 1
  118:	31 05       	cpc	r19, r1
- 11a:	81 f0       	breq	.+32     	; 0x13c <setStepX+0x78>
- 11c:	24 f4       	brge	.+8      	; 0x126 <setStepX+0x62>
+ 11a:	81 f0       	breq	.+32     	; 0x13c <setStepY+0x78>
+ 11c:	24 f4       	brge	.+8      	; 0x126 <setStepY+0x62>
  11e:	21 15       	cp	r18, r1
  120:	31 05       	cpc	r19, r1
- 122:	41 f0       	breq	.+16     	; 0x134 <setStepX+0x70>
- 124:	35 c0       	rjmp	.+106    	; 0x190 <setStepX+0xcc>
+ 122:	41 f0       	breq	.+16     	; 0x134 <setStepY+0x70>
+ 124:	35 c0       	rjmp	.+106    	; 0x190 <setStepY+0xcc>
  126:	22 30       	cpi	r18, 0x02	; 2
  128:	31 05       	cpc	r19, r1
- 12a:	61 f0       	breq	.+24     	; 0x144 <setStepX+0x80>
+ 12a:	61 f0       	breq	.+24     	; 0x144 <setStepY+0x80>
  12c:	23 30       	cpi	r18, 0x03	; 3
  12e:	31 05       	cpc	r19, r1
- 130:	69 f0       	breq	.+26     	; 0x14c <setStepX+0x88>
- 132:	2e c0       	rjmp	.+92     	; 0x190 <setStepX+0xcc>
+ 130:	69 f0       	breq	.+26     	; 0x14c <setStepY+0x88>
+ 132:	2e c0       	rjmp	.+92     	; 0x190 <setStepY+0xcc>
 			{
 				case 0:
-				PORTB |= (1 << XIN1);
- 134:	45 b1       	in	r20, 0x05	; 5
- 136:	41 60       	ori	r20, 0x01	; 1
- 138:	45 b9       	out	0x05, r20	; 5
+				PORTD |= (1 << YIN1);
+ 134:	4b b1       	in	r20, 0x0b	; 11
+ 136:	44 60       	ori	r20, 0x04	; 4
+ 138:	4b b9       	out	0x0b, r20	; 11
 				break;
- 13a:	2a c0       	rjmp	.+84     	; 0x190 <setStepX+0xcc>
+ 13a:	2a c0       	rjmp	.+84     	; 0x190 <setStepY+0xcc>
 				case 1:
-				PORTB |= (1 << XIN2);
- 13c:	45 b1       	in	r20, 0x05	; 5
- 13e:	42 60       	ori	r20, 0x02	; 2
- 140:	45 b9       	out	0x05, r20	; 5
+				PORTD |= (1 << YIN2);
+ 13c:	4b b1       	in	r20, 0x0b	; 11
+ 13e:	48 60       	ori	r20, 0x08	; 8
+ 140:	4b b9       	out	0x0b, r20	; 11
 				break;
- 142:	26 c0       	rjmp	.+76     	; 0x190 <setStepX+0xcc>
+ 142:	26 c0       	rjmp	.+76     	; 0x190 <setStepY+0xcc>
 				case 2:
-				PORTB |= (1 << XIN3);
- 144:	45 b1       	in	r20, 0x05	; 5
- 146:	44 60       	ori	r20, 0x04	; 4
- 148:	45 b9       	out	0x05, r20	; 5
+				PORTD |= (1 << YIN3);
+ 144:	4b b1       	in	r20, 0x0b	; 11
+ 146:	40 61       	ori	r20, 0x10	; 16
+ 148:	4b b9       	out	0x0b, r20	; 11
 				break;
- 14a:	22 c0       	rjmp	.+68     	; 0x190 <setStepX+0xcc>
+ 14a:	22 c0       	rjmp	.+68     	; 0x190 <setStepY+0xcc>
 				case 3:
-				PORTB |= (1 << XIN4);
- 14c:	45 b1       	in	r20, 0x05	; 5
- 14e:	48 60       	ori	r20, 0x08	; 8
- 150:	45 b9       	out	0x05, r20	; 5
+				PORTD |= (1 << YIN4);
+ 14c:	4b b1       	in	r20, 0x0b	; 11
+ 14e:	40 62       	ori	r20, 0x20	; 32
+ 150:	4b b9       	out	0x0b, r20	; 11
 				break;
- 152:	1e c0       	rjmp	.+60     	; 0x190 <setStepX+0xcc>
+ 152:	1e c0       	rjmp	.+60     	; 0x190 <setStepY+0xcc>
 			}
 		}
 		else
@@ -256,59 +436,59 @@ void setStepX(int step)
 			switch (i)
  154:	21 30       	cpi	r18, 0x01	; 1
  156:	31 05       	cpc	r19, r1
- 158:	81 f0       	breq	.+32     	; 0x17a <setStepX+0xb6>
- 15a:	24 f4       	brge	.+8      	; 0x164 <setStepX+0xa0>
+ 158:	81 f0       	breq	.+32     	; 0x17a <setStepY+0xb6>
+ 15a:	24 f4       	brge	.+8      	; 0x164 <setStepY+0xa0>
  15c:	21 15       	cp	r18, r1
  15e:	31 05       	cpc	r19, r1
- 160:	41 f0       	breq	.+16     	; 0x172 <setStepX+0xae>
- 162:	16 c0       	rjmp	.+44     	; 0x190 <setStepX+0xcc>
+ 160:	41 f0       	breq	.+16     	; 0x172 <setStepY+0xae>
+ 162:	16 c0       	rjmp	.+44     	; 0x190 <setStepY+0xcc>
  164:	22 30       	cpi	r18, 0x02	; 2
  166:	31 05       	cpc	r19, r1
- 168:	61 f0       	breq	.+24     	; 0x182 <setStepX+0xbe>
+ 168:	61 f0       	breq	.+24     	; 0x182 <setStepY+0xbe>
  16a:	23 30       	cpi	r18, 0x03	; 3
  16c:	31 05       	cpc	r19, r1
- 16e:	69 f0       	breq	.+26     	; 0x18a <setStepX+0xc6>
- 170:	0f c0       	rjmp	.+30     	; 0x190 <setStepX+0xcc>
+ 16e:	69 f0       	breq	.+26     	; 0x18a <setStepY+0xc6>
+ 170:	0f c0       	rjmp	.+30     	; 0x190 <setStepY+0xcc>
 			{
 				case 0:
-				PORTB &= ~(1 << XIN1);
- 172:	45 b1       	in	r20, 0x05	; 5
- 174:	4e 7f       	andi	r20, 0xFE	; 254
- 176:	45 b9       	out	0x05, r20	; 5
+				PORTD &= ~(1 << YIN1);
+ 172:	4b b1       	in	r20, 0x0b	; 11
+ 174:	4b 7f       	andi	r20, 0xFB	; 251
+ 176:	4b b9       	out	0x0b, r20	; 11
 				break;
- 178:	0b c0       	rjmp	.+22     	; 0x190 <setStepX+0xcc>
+ 178:	0b c0       	rjmp	.+22     	; 0x190 <setStepY+0xcc>
 				case 1:
-				PORTB &= ~(1 << XIN2);
- 17a:	45 b1       	in	r20, 0x05	; 5
- 17c:	4d 7f       	andi	r20, 0xFD	; 253
- 17e:	45 b9       	out	0x05, r20	; 5
+				PORTD &= ~(1 << YIN2);
+ 17a:	4b b1       	in	r20, 0x0b	; 11
+ 17c:	47 7f       	andi	r20, 0xF7	; 247
+ 17e:	4b b9       	out	0x0b, r20	; 11
 				break;
- 180:	07 c0       	rjmp	.+14     	; 0x190 <setStepX+0xcc>
+ 180:	07 c0       	rjmp	.+14     	; 0x190 <setStepY+0xcc>
 				case 2:
-				PORTB &= ~(1 << XIN3);
- 182:	45 b1       	in	r20, 0x05	; 5
- 184:	4b 7f       	andi	r20, 0xFB	; 251
- 186:	45 b9       	out	0x05, r20	; 5
+				PORTD &= ~(1 << YIN3);
+ 182:	4b b1       	in	r20, 0x0b	; 11
+ 184:	4f 7e       	andi	r20, 0xEF	; 239
+ 186:	4b b9       	out	0x0b, r20	; 11
 				break;
- 188:	03 c0       	rjmp	.+6      	; 0x190 <setStepX+0xcc>
+ 188:	03 c0       	rjmp	.+6      	; 0x190 <setStepY+0xcc>
 				case 3:
-				PORTB &= ~(1 << XIN4);
- 18a:	45 b1       	in	r20, 0x05	; 5
- 18c:	47 7f       	andi	r20, 0xF7	; 247
- 18e:	45 b9       	out	0x05, r20	; 5
-		{0, 0, 1, 0},
-		{0, 0, 0, 1}
+				PORTD &= ~(1 << YIN4);
+ 18a:	4b b1       	in	r20, 0x0b	; 11
+ 18c:	4f 7d       	andi	r20, 0xDF	; 223
+ 18e:	4b b9       	out	0x0b, r20	; 11
+		{0, 1, 0, 1},
+		{1, 0, 0, 1}
 	};
 
-	// Configura los pines del puente HX según la tabla
+	// Configura los pines del puente HY según la tabla
 	for (int i = 0; i < 4; i++)
  190:	2f 5f       	subi	r18, 0xFF	; 255
  192:	3f 4f       	sbci	r19, 0xFF	; 255
  194:	24 30       	cpi	r18, 0x04	; 4
  196:	31 05       	cpc	r19, r1
- 198:	0c f4       	brge	.+2      	; 0x19c <setStepX+0xd8>
- 19a:	aa cf       	rjmp	.-172    	; 0xf0 <setStepX+0x2c>
-				PORTB &= ~(1 << XIN4);
+ 198:	0c f4       	brge	.+2      	; 0x19c <setStepY+0xd8>
+ 19a:	aa cf       	rjmp	.-172    	; 0xf0 <setStepY+0x2c>
+				PORTD &= ~(1 << YIN4);
 				break;
 			}
 		}
@@ -324,275 +504,90 @@ void setStepX(int step)
  1aa:	cf 91       	pop	r28
  1ac:	08 95       	ret
 
-Disassembly of section .text.setStepY:
-
-000001ae <setStepY>:
-
-//?????????????????????????????????????????????????????????????????????????????????????????//
-
-void setStepY(int step)
-{
- 1ae:	cf 93       	push	r28
- 1b0:	df 93       	push	r29
- 1b2:	cd b7       	in	r28, 0x3d	; 61
- 1b4:	de b7       	in	r29, 0x3e	; 62
- 1b6:	a0 97       	sbiw	r28, 0x20	; 32
- 1b8:	0f b6       	in	r0, 0x3f	; 63
- 1ba:	f8 94       	cli
- 1bc:	de bf       	out	0x3e, r29	; 62
- 1be:	0f be       	out	0x3f, r0	; 63
- 1c0:	cd bf       	out	0x3d, r28	; 61
-	// Tabla de pasos
-	int sequence[4][4] =
- 1c2:	20 e2       	ldi	r18, 0x20	; 32
- 1c4:	e0 e2       	ldi	r30, 0x20	; 32
- 1c6:	f1 e0       	ldi	r31, 0x01	; 1
- 1c8:	de 01       	movw	r26, r28
- 1ca:	11 96       	adiw	r26, 0x01	; 1
- 1cc:	01 90       	ld	r0, Z+
- 1ce:	0d 92       	st	X+, r0
- 1d0:	2a 95       	dec	r18
- 1d2:	e1 f7       	brne	.-8      	; 0x1cc <setStepY+0x1e>
-		{0, 1, 0, 1},
-		{0, 1, 1, 0}
-	};
-
-	// Configura los pines del puente HY según la tabla
-	for (int i = 0; i < 4; i++)
- 1d4:	20 e0       	ldi	r18, 0x00	; 0
- 1d6:	30 e0       	ldi	r19, 0x00	; 0
- 1d8:	52 c0       	rjmp	.+164    	; 0x27e <setStepY+0xd0>
-	{
-		if (sequence[step][i])
- 1da:	fc 01       	movw	r30, r24
- 1dc:	ee 0f       	add	r30, r30
- 1de:	ff 1f       	adc	r31, r31
- 1e0:	ee 0f       	add	r30, r30
- 1e2:	ff 1f       	adc	r31, r31
- 1e4:	e2 0f       	add	r30, r18
- 1e6:	f3 1f       	adc	r31, r19
- 1e8:	ee 0f       	add	r30, r30
- 1ea:	ff 1f       	adc	r31, r31
- 1ec:	41 e0       	ldi	r20, 0x01	; 1
- 1ee:	50 e0       	ldi	r21, 0x00	; 0
- 1f0:	4c 0f       	add	r20, r28
- 1f2:	5d 1f       	adc	r21, r29
- 1f4:	e4 0f       	add	r30, r20
- 1f6:	f5 1f       	adc	r31, r21
- 1f8:	40 81       	ld	r20, Z
- 1fa:	51 81       	ldd	r21, Z+1	; 0x01
- 1fc:	45 2b       	or	r20, r21
- 1fe:	f9 f0       	breq	.+62     	; 0x23e <setStepY+0x90>
-		{
-			// Configura el pin en alto
-			switch (i)
- 200:	21 30       	cpi	r18, 0x01	; 1
- 202:	31 05       	cpc	r19, r1
- 204:	81 f0       	breq	.+32     	; 0x226 <setStepY+0x78>
- 206:	24 f4       	brge	.+8      	; 0x210 <setStepY+0x62>
- 208:	21 15       	cp	r18, r1
- 20a:	31 05       	cpc	r19, r1
- 20c:	41 f0       	breq	.+16     	; 0x21e <setStepY+0x70>
- 20e:	35 c0       	rjmp	.+106    	; 0x27a <setStepY+0xcc>
- 210:	22 30       	cpi	r18, 0x02	; 2
- 212:	31 05       	cpc	r19, r1
- 214:	61 f0       	breq	.+24     	; 0x22e <setStepY+0x80>
- 216:	23 30       	cpi	r18, 0x03	; 3
- 218:	31 05       	cpc	r19, r1
- 21a:	69 f0       	breq	.+26     	; 0x236 <setStepY+0x88>
- 21c:	2e c0       	rjmp	.+92     	; 0x27a <setStepY+0xcc>
-			{
-				case 0:
-				PORTD |= (1 << YIN1);
- 21e:	4b b1       	in	r20, 0x0b	; 11
- 220:	44 60       	ori	r20, 0x04	; 4
- 222:	4b b9       	out	0x0b, r20	; 11
-				break;
- 224:	2a c0       	rjmp	.+84     	; 0x27a <setStepY+0xcc>
-				case 1:
-				PORTD |= (1 << YIN2);
- 226:	4b b1       	in	r20, 0x0b	; 11
- 228:	48 60       	ori	r20, 0x08	; 8
- 22a:	4b b9       	out	0x0b, r20	; 11
-				break;
- 22c:	26 c0       	rjmp	.+76     	; 0x27a <setStepY+0xcc>
-				case 2:
-				PORTD |= (1 << YIN3);
- 22e:	4b b1       	in	r20, 0x0b	; 11
- 230:	40 61       	ori	r20, 0x10	; 16
- 232:	4b b9       	out	0x0b, r20	; 11
-				break;
- 234:	22 c0       	rjmp	.+68     	; 0x27a <setStepY+0xcc>
-				case 3:
-				PORTD |= (1 << YIN4);
- 236:	4b b1       	in	r20, 0x0b	; 11
- 238:	40 62       	ori	r20, 0x20	; 32
- 23a:	4b b9       	out	0x0b, r20	; 11
-				break;
- 23c:	1e c0       	rjmp	.+60     	; 0x27a <setStepY+0xcc>
-			}
-		}
-		else
-		{
-			// Configura el pin en bajo
-			switch (i)
- 23e:	21 30       	cpi	r18, 0x01	; 1
- 240:	31 05       	cpc	r19, r1
- 242:	81 f0       	breq	.+32     	; 0x264 <setStepY+0xb6>
- 244:	24 f4       	brge	.+8      	; 0x24e <setStepY+0xa0>
- 246:	21 15       	cp	r18, r1
- 248:	31 05       	cpc	r19, r1
- 24a:	41 f0       	breq	.+16     	; 0x25c <setStepY+0xae>
- 24c:	16 c0       	rjmp	.+44     	; 0x27a <setStepY+0xcc>
- 24e:	22 30       	cpi	r18, 0x02	; 2
- 250:	31 05       	cpc	r19, r1
- 252:	61 f0       	breq	.+24     	; 0x26c <setStepY+0xbe>
- 254:	23 30       	cpi	r18, 0x03	; 3
- 256:	31 05       	cpc	r19, r1
- 258:	69 f0       	breq	.+26     	; 0x274 <setStepY+0xc6>
- 25a:	0f c0       	rjmp	.+30     	; 0x27a <setStepY+0xcc>
-			{
-				case 0:
-				PORTD &= ~(1 << YIN1);
- 25c:	4b b1       	in	r20, 0x0b	; 11
- 25e:	4b 7f       	andi	r20, 0xFB	; 251
- 260:	4b b9       	out	0x0b, r20	; 11
-				break;
- 262:	0b c0       	rjmp	.+22     	; 0x27a <setStepY+0xcc>
-				case 1:
-				PORTD &= ~(1 << YIN2);
- 264:	4b b1       	in	r20, 0x0b	; 11
- 266:	47 7f       	andi	r20, 0xF7	; 247
- 268:	4b b9       	out	0x0b, r20	; 11
-				break;
- 26a:	07 c0       	rjmp	.+14     	; 0x27a <setStepY+0xcc>
-				case 2:
-				PORTD &= ~(1 << YIN3);
- 26c:	4b b1       	in	r20, 0x0b	; 11
- 26e:	4f 7e       	andi	r20, 0xEF	; 239
- 270:	4b b9       	out	0x0b, r20	; 11
-				break;
- 272:	03 c0       	rjmp	.+6      	; 0x27a <setStepY+0xcc>
-				case 3:
-				PORTD &= ~(1 << YIN4);
- 274:	4b b1       	in	r20, 0x0b	; 11
- 276:	4f 7d       	andi	r20, 0xDF	; 223
- 278:	4b b9       	out	0x0b, r20	; 11
-		{0, 1, 0, 1},
-		{0, 1, 1, 0}
-	};
-
-	// Configura los pines del puente HY según la tabla
-	for (int i = 0; i < 4; i++)
- 27a:	2f 5f       	subi	r18, 0xFF	; 255
- 27c:	3f 4f       	sbci	r19, 0xFF	; 255
- 27e:	24 30       	cpi	r18, 0x04	; 4
- 280:	31 05       	cpc	r19, r1
- 282:	0c f4       	brge	.+2      	; 0x286 <setStepY+0xd8>
- 284:	aa cf       	rjmp	.-172    	; 0x1da <setStepY+0x2c>
-				PORTD &= ~(1 << YIN4);
-				break;
-			}
-		}
-	}
-}
- 286:	a0 96       	adiw	r28, 0x20	; 32
- 288:	0f b6       	in	r0, 0x3f	; 63
- 28a:	f8 94       	cli
- 28c:	de bf       	out	0x3e, r29	; 62
- 28e:	0f be       	out	0x3f, r0	; 63
- 290:	cd bf       	out	0x3d, r28	; 61
- 292:	df 91       	pop	r29
- 294:	cf 91       	pop	r28
- 296:	08 95       	ret
-
 Disassembly of section .text.main:
 
-00000298 <main>:
+00000294 <main>:
 //?????????????????????????????????????????????????????????????????????????????????????????//
 
 int main(void)
 {
 	// Configura los pines de control del puente HX como salidas
 	DDRB |= (1 << XIN1) | (1 << XIN2) | (1 << XIN3) | (1 << XIN4);
- 298:	84 b1       	in	r24, 0x04	; 4
- 29a:	8f 60       	ori	r24, 0x0F	; 15
- 29c:	84 b9       	out	0x04, r24	; 4
+ 294:	84 b1       	in	r24, 0x04	; 4
+ 296:	8f 60       	ori	r24, 0x0F	; 15
+ 298:	84 b9       	out	0x04, r24	; 4
 	
 	// Configura los pines de control del puente HY como salidas
 	DDRD |= (1 << YIN1) | (1 << YIN2) | (1 << YIN3) | (1 << YIN4);
- 29e:	8a b1       	in	r24, 0x0a	; 10
- 2a0:	8c 63       	ori	r24, 0x3C	; 60
- 2a2:	8a b9       	out	0x0a, r24	; 10
+ 29a:	8a b1       	in	r24, 0x0a	; 10
+ 29c:	8c 63       	ori	r24, 0x3C	; 60
+ 29e:	8a b9       	out	0x0a, r24	; 10
 
 	while (1)
 	{
 		// Gira el motor en una dirección
 		for (int i = 0; i < 4; i++)
- 2a4:	c0 e0       	ldi	r28, 0x00	; 0
- 2a6:	d0 e0       	ldi	r29, 0x00	; 0
- 2a8:	10 c0       	rjmp	.+32     	; 0x2ca <main+0x32>
+ 2a0:	c0 e0       	ldi	r28, 0x00	; 0
+ 2a2:	d0 e0       	ldi	r29, 0x00	; 0
+ 2a4:	0d c0       	rjmp	.+26     	; 0x2c0 <main+0x2c>
 		{
 			setStepX(i);
- 2aa:	ce 01       	movw	r24, r28
- 2ac:	0e 94 62 00 	call	0xc4	; 0xc4 <__data_load_end>
+ 2a6:	ce 01       	movw	r24, r28
+ 2a8:	0e 94 d7 00 	call	0x1ae	; 0x1ae <setStepX>
 			setStepY(i);
- 2b0:	ce 01       	movw	r24, r28
- 2b2:	0e 94 d7 00 	call	0x1ae	; 0x1ae <setStepY>
+ 2ac:	ce 01       	movw	r24, r28
+ 2ae:	0e 94 62 00 	call	0xc4	; 0xc4 <__data_load_end>
 	#else
 		//round up by default
 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
 	#endif
 
 	__builtin_avr_delay_cycles(__ticks_dc);
- 2b6:	2f e3       	ldi	r18, 0x3F	; 63
- 2b8:	8d e0       	ldi	r24, 0x0D	; 13
- 2ba:	93 e0       	ldi	r25, 0x03	; 3
- 2bc:	21 50       	subi	r18, 0x01	; 1
- 2be:	80 40       	sbci	r24, 0x00	; 0
- 2c0:	90 40       	sbci	r25, 0x00	; 0
- 2c2:	e1 f7       	brne	.-8      	; 0x2bc <main+0x24>
- 2c4:	00 c0       	rjmp	.+0      	; 0x2c6 <main+0x2e>
- 2c6:	00 00       	nop
+ 2b2:	87 ea       	ldi	r24, 0xA7	; 167
+ 2b4:	91 e6       	ldi	r25, 0x61	; 97
+ 2b6:	01 97       	sbiw	r24, 0x01	; 1
+ 2b8:	f1 f7       	brne	.-4      	; 0x2b6 <main+0x22>
+ 2ba:	00 c0       	rjmp	.+0      	; 0x2bc <main+0x28>
+ 2bc:	00 00       	nop
 	DDRD |= (1 << YIN1) | (1 << YIN2) | (1 << YIN3) | (1 << YIN4);
 
 	while (1)
 	{
 		// Gira el motor en una dirección
 		for (int i = 0; i < 4; i++)
- 2c8:	21 96       	adiw	r28, 0x01	; 1
- 2ca:	c4 30       	cpi	r28, 0x04	; 4
- 2cc:	d1 05       	cpc	r29, r1
- 2ce:	6c f3       	brlt	.-38     	; 0x2aa <main+0x12>
- 2d0:	e9 cf       	rjmp	.-46     	; 0x2a4 <main+0xc>
+ 2be:	21 96       	adiw	r28, 0x01	; 1
+ 2c0:	c4 30       	cpi	r28, 0x04	; 4
+ 2c2:	d1 05       	cpc	r29, r1
+ 2c4:	84 f3       	brlt	.-32     	; 0x2a6 <main+0x12>
+ 2c6:	ec cf       	rjmp	.-40     	; 0x2a0 <main+0xc>
 
 Disassembly of section .text.__dummy_fini:
 
-000002f0 <_fini>:
- 2f0:	08 95       	ret
+000002e6 <_fini>:
+ 2e6:	08 95       	ret
 
 Disassembly of section .text.__dummy_funcs_on_exit:
 
-000002f2 <__funcs_on_exit>:
- 2f2:	08 95       	ret
+000002e8 <__funcs_on_exit>:
+ 2e8:	08 95       	ret
 
 Disassembly of section .text.__dummy_simulator_exit:
 
-000002f4 <__simulator_exit>:
- 2f4:	08 95       	ret
+000002ea <__simulator_exit>:
+ 2ea:	08 95       	ret
 
 Disassembly of section .text.exit:
 
-000002d2 <exit>:
- 2d2:	ec 01       	movw	r28, r24
- 2d4:	0e 94 79 01 	call	0x2f2	; 0x2f2 <__funcs_on_exit>
- 2d8:	0e 94 78 01 	call	0x2f0	; 0x2f0 <_fini>
- 2dc:	ce 01       	movw	r24, r28
- 2de:	0e 94 7a 01 	call	0x2f4	; 0x2f4 <__simulator_exit>
- 2e2:	ce 01       	movw	r24, r28
- 2e4:	0e 94 76 01 	call	0x2ec	; 0x2ec <_Exit>
+000002c8 <exit>:
+ 2c8:	ec 01       	movw	r28, r24
+ 2ca:	0e 94 74 01 	call	0x2e8	; 0x2e8 <__funcs_on_exit>
+ 2ce:	0e 94 73 01 	call	0x2e6	; 0x2e6 <_fini>
+ 2d2:	ce 01       	movw	r24, r28
+ 2d4:	0e 94 75 01 	call	0x2ea	; 0x2ea <__simulator_exit>
+ 2d8:	ce 01       	movw	r24, r28
+ 2da:	0e 94 71 01 	call	0x2e2	; 0x2e2 <_Exit>
 
 Disassembly of section .text._Exit:
 
-000002ec <_Exit>:
- 2ec:	0e 94 60 00 	call	0xc0	; 0xc0 <_exit>
+000002e2 <_Exit>:
+ 2e2:	0e 94 60 00 	call	0xc0	; 0xc0 <_exit>
