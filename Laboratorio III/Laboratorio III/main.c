@@ -11,9 +11,7 @@ int Auxb2 = 0;												//>interupciones<
 #define BOTON1_PIN PIND2									//>interupciones<
 #define BOTON2_PIN PIND3									//>interupciones<
 
-#define LED_PIN PINB4										//>led<							// Pin de salida para led
-
-
+#define SOL_PIN PINB4										//>solenoide<					// Pin de salida para solenoide
 
 																							// Pines conectados al puente HX
 #define XIN1 PINB0											//>motor1<
@@ -26,6 +24,9 @@ int Auxb2 = 0;												//>interupciones<
 #define YIN2 PIND5											//>motor2<
 #define YIN3 PIND6											//>motor2<
 #define YIN4 PIND7											//>motor2<
+
+#define Umbral 645											//>ADC<
+
 
 //????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
 void ConfigInterrupciones()
@@ -98,6 +99,27 @@ void setStepX(int step)
 		}
 	}
 }															//>motor1<
+
+//????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
+
+void ADC_C()																				// Configurar ADC
+{															//>ADC<
+	ADMUX = (1<<REFS0);
+
+	ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
+}															//>ADC<
+
+uint16_t ADC_DEC(unsigned int v)							//>ADC<
+{
+	v &= 0b00000111;
+	ADMUX = (ADMUX & 0xF8)|v;
+
+	ADCSRA |= (1<<ADSC);
+
+	while(ADCSRA & (1<<ADSC));
+
+	return (ADC);
+}															//>ADC<
 
 //????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
 
@@ -178,36 +200,63 @@ int main(void)
 	ConfigInterrupciones();																	// Llamada a la funcion configinterupciones
 															//>interupciones<
 
-															//>led<
-	DDRB |= (1 << LED_PIN);																	// Configura pin led como salida
-															//>led<
+															//>solenoide<
+	DDRB |= (1 << SOL_PIN);																	// Configura pin solenoide como salida
+															//>solenoide<
 
+															//>ADC<
+	ADC_C();																				// Llamada a funcion de configurar ADC
+
+	DDRC |= (1 << PINC5) | (1 << PINC4) | (1 << PINC3);										// Configurar pines como salida para encender leds
+															//>ADC<
 
 	while (1)
 	{
 		while (Auxb1==1)
-			for (int i = 0; i < 8; i++)																// Girar en sentido horario
+			for (int i = 0; i < 8; i++)														// Girar en sentido horario
 			{
 				setStepX(i);
 				setStepY(i);
-				_delay_ms(50);																		// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
+				_delay_ms(50);																// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
 			}	
-		
-	    PORTB |= (1 << LED_PIN);
+															//>solenoide<
+	    PORTB |= (1 << SOL_PIN);
 	    
-	    _delay_ms(5000);
+	    _delay_ms(2000);
 	    
-	    PORTB &= ~(1 << LED_PIN);
+	    PORTB &= ~(1 << SOL_PIN);
 	    
-	    _delay_ms(5000);
-		
+	    _delay_ms(2000);
+															//>solenoide<
 		while (Auxb2==1)
-			for (int i = 8; i >= 0; i--)															// Girar en sentido antihorario
+			for (int i = 8; i >= 0; i--)													// Girar en sentido antihorario
 			{
 				setStepX(i);
 				setStepY(i);
-				_delay_ms(50);																		// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
+				_delay_ms(50);																// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
 			}
+																	//>ADC<
+		if(ADC_DEC(0) < Umbral)
+		{
+			PORTC |= (1<<PC3);
+			} else {
+			PORTC &= ~(1<<PC3);
+		}
+
+		if(ADC_DEC(1) < Umbral)
+		{
+			PORTC |= (1<<PC4);
+			} else {
+			PORTC &= ~(1<<PC4);
+		}
+
+		if(ADC_DEC(2) < Umbral)
+		{
+			PORTC |= (1<<PC5);
+			} else {
+			PORTC &= ~(1<<PC5);
+		}
+																	//>ADC<
 	}
 
 	return 0;
@@ -243,10 +292,6 @@ ISR(INT1_vect)												//>interupciones<
 	}
 	_delay_ms(30);
 }															//>interupciones<
-
-
-
-
 
 /*
 -------------------------------------
@@ -309,5 +354,24 @@ ISR(INT1_vect)												//>interupciones<
 		{1, 1, 0, 0},
 		{1, 0, 0, 0},
 		{1, 0, 0, 1}
+-------------------------------------
+						>tabla 3<
+		{0, 1, 0, 1},
+		{0, 0, 0, 1},
+		{0, 1, 1, 0},
+		{0, 1, 0, 0},
+		{1, 0, 1, 0},
+		{0, 0, 1, 0},
+		{1, 0, 0, 1},
+		{0, 1, 0, 0}
+						>tabla 3<
+		{1, 0, 1, 0},
+		{1, 0, 0, 0},
+		{0, 1, 1, 0},
+		{0, 0, 1, 0},
+		{0, 1, 0, 1},
+		{0, 1, 0, 0},
+		{1, 0, 0, 1},
+		{0, 0, 0, 1}
 -------------------------------------
 */
