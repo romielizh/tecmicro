@@ -5,55 +5,88 @@
 #include <avr/interrupt.h>									//>interupciones<
 
 //?????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
-int Auxb1 = 0;												//>interupciones<
-int Auxb2 = 0;												//>interupciones<
+
+#define F_CPU 16000000UL									//>UART<
+#define BAUD 9600											//>UART<
+#define MYUBRR F_CPU/16/BAUD-1								//>UART<
 																							// Pines conectados a los botones
 #define BOTON1_PIN PIND2									//>interupciones<
 #define BOTON2_PIN PIND3									//>interupciones<
-
-#define SOL_PIN PINB4										//>solenoide<					// Pin de salida para solenoide
-
+unsigned int Aux1 = 0;										//>interupciones<
+unsigned int Aux2 = 0;										//>interupciones<
+																							// Pin de salida para solenoide
+#define SOL_PIN PINB4										//>solenoide<
 																							// Pines conectados al puente HX
 #define XIN1 PINB0											//>motor1<
 #define XIN2 PINB1											//>motor1<
 #define XIN3 PINB2											//>motor1<
 #define XIN4 PINB3											//>motor1<
-
 																							// Pines conectados al puente HY
 #define YIN1 PIND4											//>motor2<
 #define YIN2 PIND5											//>motor2<
 #define YIN3 PIND6											//>motor2<
 #define YIN4 PIND7											//>motor2<
+																							// Estados para los dibujos y seleccion de opciones
+typedef enum 
+{															//>UART<
+	ESPERAR,
+	ESTADO_OPCION_1,
+	ESTADO_OPCION_2,
+	ESTADO_OPCION_3,
+	ESTADO_OPCION_4,
+	MODO_LIBRE
+} State;													//>UART<
+																							// Seleccion de estados para opciones de dibujo
+volatile State state = ESPERAR;								//>UART<
+volatile int selectedOption = 0;							//>UART<
 
-#define Umbral 645											//>ADC<
-
+unsigned int PASOS = 0;
 
 //????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
+//>Configuraciones<
 void ConfigInterrupciones()
 {															//>interupciones<
 	EICRA |= (1 << ISC01);																	// Configurar boton1 para flanco de bajada
 	EICRA |= (1 << ISC11);																	// Configurar boton2 para flanco de bajada
-
 	EIMSK |= (1 << INT0) | (1 << INT1);														// Habilitar boton1 y boton2
-
 	sei();																					// Habilitar interrupciones globales
 }															//>interupciones<
 
-//????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
+void USART_Init(unsigned int ubrr) 
+{															//>UART<
+	UBRR0H = (unsigned char)(ubrr>>8);
+	UBRR0L = (unsigned char)ubrr;
+	UCSR0B = (1<<RXEN0)|(1<<TXEN0);
+	UCSR0C = (1<<USBS0)|(3<<UCSZ00);
+}
 
+void USART_Transmit(unsigned char data)
+{
+	while (!(UCSR0A & (1<<UDRE0)));
+	UDR0 = data;
+}
+
+unsigned char USART_Receive(void)
+{
+	while (!(UCSR0A & (1<<RXC0)));
+	return UDR0;
+}															//>UART<
+
+//????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
+//>Secuencia_pasos_X<
 void setStepX(int step)
 {															//>motor1<
 																							// Tabla de pasos
 	int sequence[8][4] =																	//[filas][columnas]
 	{
-		{0, 0, 0, 1},
-		{0, 0, 1, 1},
-		{0, 0, 1, 0},
-		{0, 1, 1, 0},
-		{0, 1, 0, 0},
-		{1, 1, 0, 0},
 		{1, 0, 0, 0},
-		{1, 0, 0, 1}
+		{1, 0, 0, 0},
+		{1, 0, 0, 0},
+		{1, 0, 0, 0},
+		{1, 0, 0, 0},
+		{1, 0, 0, 0},
+		{1, 0, 0, 0},
+		{1, 0, 0, 0}
 	};														//>motor1<
 
 																							// Configura los pines del puente HX según la tabla
@@ -65,17 +98,17 @@ void setStepX(int step)
 			switch (i)
 			{
 				case 0:
-				PORTB |= (1 << XIN1);
-				break;
+					PORTB |= (1 << XIN1);
+					break;
 				case 1:
-				PORTB |= (1 << XIN2);
-				break;
+					PORTB |= (1 << XIN2);
+					break;
 				case 2:
-				PORTB |= (1 << XIN3);
-				break;
+					PORTB |= (1 << XIN3);
+					break;
 				case 3:
-				PORTB |= (1 << XIN4);
-				break;
+					PORTB |= (1 << XIN4);
+					break;
 			}
 		}													//>motor1<
 		else
@@ -84,58 +117,37 @@ void setStepX(int step)
 			switch (i)
 			{
 				case 0:
-				PORTB &= ~(1 << XIN1);
-				break;
+					PORTB &= ~(1 << XIN1);
+					break;
 				case 1:
-				PORTB &= ~(1 << XIN2);
-				break;
+					PORTB &= ~(1 << XIN2);
+					break;
 				case 2:
-				PORTB &= ~(1 << XIN3);
-				break;
+					PORTB &= ~(1 << XIN3);
+					break;
 				case 3:
-				PORTB &= ~(1 << XIN4);
-				break;
+					PORTB &= ~(1 << XIN4);
+					break;
 			}
 		}
 	}
 }															//>motor1<
 
 //????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
-
-void ADC_C()																				// Configurar ADC
-{															//>ADC<
-	ADMUX = (1<<REFS0);
-
-	ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
-}															//>ADC<
-
-uint16_t ADC_DEC(unsigned int v)							//>ADC<
-{
-	v &= 0b00000111;
-	ADMUX = (ADMUX & 0xF8)|v;
-
-	ADCSRA |= (1<<ADSC);
-
-	while(ADCSRA & (1<<ADSC));
-
-	return (ADC);
-}															//>ADC<
-
-//????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
-
+//>Secuencia_pasos_Y<
 void setStepY(int step)
 {															//>motor2<
 																							// Tabla de pasos
 	int sequence[8][4] =																	//[filas][columnas]
 	{
-		{1, 0, 0, 0},
-		{1, 1, 0, 0},
-		{0, 1, 0, 0},
-		{0, 1, 1, 0},
-		{0, 0, 1, 0},
-		{0, 0, 1, 1},
-		{0, 0, 0, 1},
-		{1, 0, 0, 1}
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0}
 	};														//>motor2<
 
 																							// Configura los pines del puente HY según la tabla
@@ -147,17 +159,17 @@ void setStepY(int step)
 			switch (i)
 			{
 				case 0:
-				PORTD |= (1 << YIN1);
-				break;
+					PORTD |= (1 << YIN1);
+					break;
 				case 1:
-				PORTD |= (1 << YIN2);
-				break;
+					PORTD |= (1 << YIN2);
+					break;
 				case 2:
-				PORTD |= (1 << YIN3);
-				break;
+					PORTD |= (1 << YIN3);
+					break;
 				case 3:
-				PORTD |= (1 << YIN4);
-				break;
+					PORTD |= (1 << YIN4);
+					break;
 			}
 		}													//>motor2<
 		else
@@ -166,21 +178,67 @@ void setStepY(int step)
 			switch (i)
 			{
 				case 0:
-				PORTD &= ~(1 << YIN1);
-				break;
+					PORTD &= ~(1 << YIN1);
+					break;
 				case 1:
-				PORTD &= ~(1 << YIN2);
-				break;
+					PORTD &= ~(1 << YIN2);
+					break;
 				case 2:
-				PORTD &= ~(1 << YIN3);
-				break;
+					PORTD &= ~(1 << YIN3);
+					break;
 				case 3:
-				PORTD &= ~(1 << YIN4);
-				break;
+					PORTD &= ~(1 << YIN4);
+					break;
 			}
 		}
 	}
 }															//>motor2<
+
+//????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
+//>Secuencia_ejecucion_dibujos_UART<
+void handle_state()
+{															//>UART<
+	switch (state)
+	{
+		case ESPERAR:
+			break;
+		case ESTADO_OPCION_1:
+			USART_Transmit('1');
+			USART_Transmit('e');
+			USART_Transmit('f');
+			USART_Transmit('\n');
+			state = ESPERAR;
+			break;
+		case ESTADO_OPCION_2:
+			USART_Transmit('2');
+			USART_Transmit('e');
+			USART_Transmit('f');
+			USART_Transmit('\n');
+			state = ESPERAR;
+			break;
+		case ESTADO_OPCION_3:
+			USART_Transmit('3');
+			USART_Transmit('e');
+			USART_Transmit('f');
+			USART_Transmit('\n');
+			state = ESPERAR;
+			break;
+		case ESTADO_OPCION_4:
+			USART_Transmit('4');
+			USART_Transmit('e');
+			USART_Transmit('f');
+			USART_Transmit('\n');
+			state = ESPERAR;
+			break;
+		case MODO_LIBRE:
+			USART_Transmit('l');
+			USART_Transmit('e');
+			USART_Transmit('l');
+			USART_Transmit('\n');
+			state = ESPERAR;
+			break;
+	}
+}
 
 //????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
 
@@ -196,7 +254,6 @@ int main(void)
 
 															//>interupciones<
 	DDRD &= ~((1 << BOTON1_PIN) | (1 << BOTON2_PIN));										// Configurar pines de entrada para los botones
-
 	ConfigInterrupciones();																	// Llamada a la funcion configinterupciones
 															//>interupciones<
 
@@ -204,59 +261,41 @@ int main(void)
 	DDRB |= (1 << SOL_PIN);																	// Configura pin solenoide como salida
 															//>solenoide<
 
-															//>ADC<
-	ADC_C();																				// Llamada a funcion de configurar ADC
-
-	DDRC |= (1 << PINC5) | (1 << PINC4) | (1 << PINC3);										// Configurar pines como salida para encender leds
-															//>ADC<
+															//>UART<
+    USART_Init(MYUBRR);																		// Configura UART
+															//>UART<
 
 	while (1)
 	{
+		handle_state();
+		/*//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 		while (Auxb1==1)
-			for (int i = 0; i < 8; i++)														// Girar en sentido horario
+			for (int i = 0; i < 8; i++)														// Girar derechaY abajoX
 			{
 				setStepX(i);
 				setStepY(i);
-				_delay_ms(50);																// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
-			}	
-															//>solenoide<
-	    PORTB |= (1 << SOL_PIN);
+				_delay_ms(150);																// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
+			}
+		
+		//while (Auxb2==1)
+		for (int i = 8; i >= 0; i--)														// Girar en sentido antihorario
+		{
+			setStepX(i);
+			setStepY(i);
+			_delay_ms(150);																	// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
+		}
+		
+		*///>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+		
+		/*//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	    PORTB |= (1 << SOL_PIN);							//>solenoide<
 	    
 	    _delay_ms(2000);
 	    
 	    PORTB &= ~(1 << SOL_PIN);
 	    
-	    _delay_ms(2000);
-															//>solenoide<
-		while (Auxb2==1)
-			for (int i = 8; i >= 0; i--)													// Girar en sentido antihorario
-			{
-				setStepX(i);
-				setStepY(i);
-				_delay_ms(50);																// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
-			}
-																	//>ADC<
-		if(ADC_DEC(0) < Umbral)
-		{
-			PORTC |= (1<<PC3);
-			} else {
-			PORTC &= ~(1<<PC3);
-		}
-
-		if(ADC_DEC(1) < Umbral)
-		{
-			PORTC |= (1<<PC4);
-			} else {
-			PORTC &= ~(1<<PC4);
-		}
-
-		if(ADC_DEC(2) < Umbral)
-		{
-			PORTC |= (1<<PC5);
-			} else {
-			PORTC &= ~(1<<PC5);
-		}
-																	//>ADC<
+	    _delay_ms(2000);									//>solenoide<
+		*///>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	}
 
 	return 0;
@@ -264,34 +303,142 @@ int main(void)
 //????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
 
 																							// Rutina de servicio de interrupción para boton1
-ISR(INT0_vect)												//>interupciones<
-{
-	_delay_ms(30);
-	if (Auxb1 == 1)
+ISR(INT0_vect)
+{															//>interupciones<
+	
+	_delay_ms(1000);
+	selectedOption = (selectedOption + 1) % 5;
+	switch (selectedOption)
 	{
-		Auxb1 = 0;
+		case 0:
+		USART_Transmit('1');
+		USART_Transmit(':');
+		USART_Transmit(' ');
+		USART_Transmit('D');
+		USART_Transmit('i');
+		USART_Transmit('b');
+		USART_Transmit('u');
+		USART_Transmit('j');
+		USART_Transmit('o');
+		USART_Transmit(' ');
+		USART_Transmit('1');
+		USART_Transmit('\n');
+		break;
+		case 1:
+		USART_Transmit('2');
+		USART_Transmit(':');
+		USART_Transmit(' ');
+		USART_Transmit('D');
+		USART_Transmit('i');
+		USART_Transmit('b');
+		USART_Transmit('u');
+		USART_Transmit('j');
+		USART_Transmit('o');
+		USART_Transmit(' ');
+		USART_Transmit('2');
+		USART_Transmit('\n');
+		break;
+		case 2:
+		USART_Transmit('3');
+		USART_Transmit(':');
+		USART_Transmit(' ');
+		USART_Transmit('D');
+		USART_Transmit('i');
+		USART_Transmit('b');
+		USART_Transmit('u');
+		USART_Transmit('j');
+		USART_Transmit('o');
+		USART_Transmit(' ');
+		USART_Transmit('3');
+		USART_Transmit('\n');
+		break;
+		case 3:
+		USART_Transmit('4');
+		USART_Transmit(':');
+		USART_Transmit(' ');
+		USART_Transmit('D');
+		USART_Transmit('i');
+		USART_Transmit('b');
+		USART_Transmit('u');
+		USART_Transmit('j');
+		USART_Transmit('o');
+		USART_Transmit(' ');
+		USART_Transmit('4');
+		USART_Transmit('\n');
+		break;
+		case 4:
+		USART_Transmit('4');
+		USART_Transmit(':');
+		USART_Transmit(' ');
+		USART_Transmit('M');
+		USART_Transmit('o');
+		USART_Transmit('d');
+		USART_Transmit('o');
+		USART_Transmit(' ');
+		USART_Transmit('l');
+		USART_Transmit('i');
+		USART_Transmit('b');
+		USART_Transmit('r');
+		USART_Transmit('e');
+		USART_Transmit('\n');
+		break;
+
+	}
+	
+	/*//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	_delay_ms(30);
+	if (Aux1 == 1)
+	{
+		Aux1 = 0;
 	}
 	else
 	{
-		Auxb1 = 1;
+		Aux1 = 1;
 	}
 	_delay_ms(30);
+	*///>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 }															//>interupciones<
 
 																							// Rutina de servicio de interrupción para boton2
-ISR(INT1_vect)												//>interupciones<
-{
-	_delay_ms(30);
-	if (Auxb2 == 1)
+ISR(INT1_vect)
+{															//>interupciones<
+	
+	_delay_ms(1000);
+	switch (selectedOption)
 	{
-		Auxb2 = 0;
+		case 0:
+		state = ESTADO_OPCION_1;
+		break;
+		case 1:
+		state = ESTADO_OPCION_2;
+		break;
+		case 2:
+		state = ESTADO_OPCION_3;
+		break;
+		case 3:
+		state = ESTADO_OPCION_4;
+		break;
+		case 4:
+		state = MODO_LIBRE;
+		break;
+	}
+	
+	/*//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	_delay_ms(30);
+	if (Aux2 == 1)
+	{
+		Aux2 = 0;
 	}
 	else
 	{
-		Auxb2 = 1;
+		Aux2 = 1;
 	}
 	_delay_ms(30);
+	*///>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 }															//>interupciones<
+
+
+
 
 /*
 -------------------------------------
@@ -318,23 +465,23 @@ ISR(INT1_vect)												//>interupciones<
 		{1, 0, 0, 1}
 -------------------------------------
 						>tabla 1-1<
+		{0, 0, 0, 1},
 		{0, 1, 0, 1},
 		{0, 1, 0, 0},
 		{0, 1, 1, 0},
 		{0, 0, 1, 0},
 		{1, 0, 1, 0},
 		{1, 0, 0, 0},
-		{1, 0, 0, 1},
-		{0, 0, 0, 1}
+		{1, 0, 0, 1}
 						>tabla 1-2<
+		{1, 0, 0, 0}
 		{1, 0, 1, 0},
 		{0, 0, 1, 0},
 		{0, 1, 1, 0},
 		{0, 1, 0, 0},
 		{0, 1, 0, 1},
 		{0, 0, 0, 1},
-		{1, 0, 0, 1},
-		{1, 0, 0, 0}
+		{1, 0, 0, 1}
 -------------------------------------
 						>tabla 2-1<
 		{1, 0, 0, 0},
@@ -373,5 +520,42 @@ ISR(INT1_vect)												//>interupciones<
 		{0, 1, 0, 0},
 		{1, 0, 0, 1},
 		{0, 0, 0, 1}
+		
+				{1, 0, 0, 0},
+				{1, 0, 1, 0},
+				{0, 0, 1, 0},
+				{0, 1, 1, 0},
+				{0, 1, 0, 0},
+				{0, 1, 0, 1},
+				{0, 0, 0, 1},
+				{1, 0, 0, 1}
 -------------------------------------
+*/
+/*
+tx 1 salida			PD1
+13 salida			PB5
+a0 salida			PC0
+a1 salida			PC1
+a2 entrada y1 axis	PC2
+a3 entrada y2 axis	PC3
+a4 entrada x1 axis	PC4
+a5 entrada x2 axis	PC5
+DDRD &= ~(1 << PIN_ENTRADA);
+
+
+
+// Definir pines de interés
+#define PIN_SALIDA PD2
+#define PIN_ENTRADA PD3
+
+// Configurar PIN_SALIDA como salida
+DDRD |= (1 << PIN_SALIDA);
+
+// Configurar PIN_ENTRADA como entrada (sin resistencia de pull-up)
+DDRD &= ~(1 << PIN_ENTRADA);
+
+// O, si se desea usar resistencia de pull-up en PIN_ENTRADA
+// DDRD &= ~(1 << PIN_ENTRADA); // Configurar como entrada
+// PORTD |= (1 << PIN_ENTRADA); // Activar resistencia de pull-up
+
 */
