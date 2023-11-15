@@ -2,7 +2,7 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
-#include <avr/interrupt.h>									//>interupciones<
+#include <avr/interrupt.h>									//>interrupciones<
 
 //?????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
 
@@ -10,10 +10,12 @@
 #define BAUD 9600											//>UART<
 #define MYUBRR F_CPU/16/BAUD-1								//>UART<
 																							// Pines conectados a los botones
-#define BOTON1_PIN PIND2									//>interupciones<
-#define BOTON2_PIN PIND3									//>interupciones<
-unsigned int Aux1 = 0;										//>interupciones<
-unsigned int Aux2 = 0;										//>interupciones<
+#define BOTON1_PIN PIND2									//>interrupciones<
+#define BOTON2_PIN PIND3									//>interrupciones<
+unsigned int MENU = 1;										//>interrupciones<
+unsigned int LIBRE = 0;										//>interrupciones<
+unsigned int izquierda = 0;									//>interrupciones<
+unsigned int derecha = 0;									//>interrupciones<
 																							// Pin de salida para solenoide
 #define SOL_PIN PINB4										//>solenoide<
 																							// Pines conectados al puente HX
@@ -41,16 +43,24 @@ volatile State state = ESPERAR;								//>UART<
 volatile int selectedOption = 0;							//>UART<
 
 unsigned int PASOS = 0;
+char strings[] = "Modo Libre: Activado\n";
+char stringf[] = "Modo Libre: Desactivado\n";
+char string1[] = "1: Dibujo 1\n";
+char string2[] = "2: Dibujo 2\n";
+char string3[] = "3: Dibujo 3\n";
+char string4[] = "4: Dibujo 4\n";
+char stringml[] = "5: Modo Libre\n";
+char stringds[] = "Dibujando...\n";
+char stringdf[] = "Dibujo terminado\n";
 
 //????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
 //>Configuraciones<
 void ConfigInterrupciones()
-{															//>interupciones<
-	EICRA |= (1 << ISC01);																	// Configurar boton1 para flanco de bajada
-	EICRA |= (1 << ISC11);																	// Configurar boton2 para flanco de bajada
+{															//>interrupciones<
+	EICRA |= (1 << ISC01) | (1 << ISC11);													// Configurar boton1 y boton2 para flanco de bajada
 	EIMSK |= (1 << INT0) | (1 << INT1);														// Habilitar boton1 y boton2
 	sei();																					// Habilitar interrupciones globales
-}															//>interupciones<
+}															//>interrupciones<
 
 void USART_Init(unsigned int ubrr) 
 {															//>UART<
@@ -80,13 +90,13 @@ void setStepX(int step)
 	int sequence[8][4] =																	//[filas][columnas]
 	{
 		{1, 0, 0, 0},
-		{1, 0, 0, 0},
-		{1, 0, 0, 0},
-		{1, 0, 0, 0},
-		{1, 0, 0, 0},
-		{1, 0, 0, 0},
-		{1, 0, 0, 0},
-		{1, 0, 0, 0}
+		{1, 0, 1, 0},
+		{0, 0, 1, 0},
+		{0, 1, 1, 0},
+		{0, 1, 0, 0},
+		{0, 1, 0, 1},
+		{0, 0, 0, 1},
+		{1, 0, 0, 1}
 	};														//>motor1<
 
 																							// Configura los pines del puente HX según la tabla
@@ -140,14 +150,14 @@ void setStepY(int step)
 																							// Tabla de pasos
 	int sequence[8][4] =																	//[filas][columnas]
 	{
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0}
+		{1, 0, 0, 0},
+		{1, 0, 1, 0},
+		{0, 0, 1, 0},
+		{0, 1, 1, 0},
+		{0, 1, 0, 0},
+		{0, 1, 0, 1},
+		{0, 0, 0, 1},
+		{1, 0, 0, 1}
 	};														//>motor2<
 
 																							// Configura los pines del puente HY según la tabla
@@ -195,6 +205,38 @@ void setStepY(int step)
 }															//>motor2<
 
 //????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
+// Funciones_1/4_circulo
+void circulopasosX(unsigned int PASITOS)
+{
+	int i = 0;																				// Variable para los pasos
+	PASOS = 0;																				// Variable que cuenta los pasos hechos
+	while (PASOS < PASITOS)																	// Mientras los pasos hechos sean menores a los pasos que hay que hacer
+	{
+		if (i==8)																			// Se completó una revolucion?
+		{i=0;}																				// Entonces comenzar desde el paso 0
+		setStepX(i);																		// Dar el paso numero i
+		_delay_ms(150);																		// Tiempo entre pasos
+		i++;																				// Paso siguiente
+		PASOS++;																			// Se dio otro paso mas
+	}
+}
+
+void circulopasosY(unsigned int PASITOS)
+{
+	int i = 0;																				// Variable para los pasos
+	PASOS = 0;																				// Variable que cuenta los pasos hechos
+	while (PASOS < PASITOS)																	// Mientras los pasos hechos sean menores a los pasos que hay que hacer
+	{
+		if (i==8)																			// Se completó una revolucion?
+		{i=0;}																				// Entonces comenzar desde el paso 0
+		setStepY(i);																		// Dar el paso numero i
+		_delay_ms(150);																		// Tiempo entre pasos
+		i++;																				// Paso siguiente
+		PASOS++;																			// Se dio otro paso mas
+	}
+}
+
+//????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
 //>Secuencia_ejecucion_dibujos_UART<
 void handle_state()
 {															//>UART<
@@ -202,46 +244,371 @@ void handle_state()
 	{
 		case ESPERAR:
 			break;
-		case ESTADO_OPCION_1:
-			USART_Transmit('1');
-			USART_Transmit('e');
-			USART_Transmit('f');
-			USART_Transmit('\n');
-			state = ESPERAR;
+		//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>LINEA
+		case ESTADO_OPCION_1:																// Dibujo 1 start 
+			MENU = 0;
+			for (int i = 0; i < 13; i++)
+				{USART_Transmit(stringds[i]);}												// "Dibujando...\n"
+			PORTB |= (1 << SOL_PIN);						//>solenoide< ON
+			while (PASOS < 100)
+			{
+				for (int i = 0; i < 8; i++)													// Girar<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+				{
+					//setStepX(i);
+					setStepY(i);
+					_delay_ms(150);															// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
+					PASOS++;
+				}
+			}
+			state = ESPERAR;																// Volver a MENU, seleccion de opciones
+			MENU = 1;
+			for (int i = 0; i < 17; i++)
+				{USART_Transmit(stringdf[i]);}												// "Dibujo terminado\n"
+			PORTB &= ~(1 << SOL_PIN);						//>solenoide< OFF
+			break;																			// Dibujo 1 stop
+		//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>CUADRADO
+		case ESTADO_OPCION_2:																// Dibujo 2 start
+			MENU = 0;
+			for (int i = 0; i < 13; i++)
+				{USART_Transmit(stringds[i]);}												// "Dibujando...\n"
+			PORTB |= (1 << SOL_PIN);						//>solenoide< ON
+			while (PASOS < 100)
+			{
+				for (int i = 0; i < 8; i++)													// Girar<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+				{
+					//setStepX(i);
+					setStepY(i);
+					_delay_ms(150);															// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
+					PASOS++;
+				}
+			}
+			PASOS = 0;
+			_delay_ms(1500);
+			while (PASOS < 100)
+			{
+				for (int i = 0; i < 8; i++)													// Girar<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+				{
+					setStepX(i);
+					//setStepY(i);
+					_delay_ms(150);															// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
+					PASOS++;
+				}
+			}
+			PASOS = 0;
+			_delay_ms(1500);
+			while (PASOS < 100)
+			{
+				for (int i = 8; i >= 0; i--)												// Girar<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+				{
+					//setStepX(i);
+					setStepY(i);
+					_delay_ms(150);															// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
+					PASOS++;
+				}
+			}
+			PASOS = 0;
+			_delay_ms(1500);
+			while (PASOS < 100)
+			{
+				for (int i = 8; i >= 0; i--)												// Girar<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+				{
+					//setStepX(i);
+					setStepY(i);
+					_delay_ms(150);															// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
+					PASOS++;
+				}
+			}
+			PASOS = 0;
+			_delay_ms(1500);
+			state = ESPERAR;																// Volver a MENU, seleccion de opciones
+			MENU = 1;
+			for (int i = 0; i < 17; i++)
+				{USART_Transmit(stringdf[i]);}												// "Dibujo terminado\n"
+			PORTB &= ~(1 << SOL_PIN);						//>solenoide< OFF
 			break;
-		case ESTADO_OPCION_2:
-			USART_Transmit('2');
-			USART_Transmit('e');
-			USART_Transmit('f');
-			USART_Transmit('\n');
-			state = ESPERAR;
-			break;
+		//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>ROMBO
 		case ESTADO_OPCION_3:
-			USART_Transmit('3');
-			USART_Transmit('e');
-			USART_Transmit('f');
-			USART_Transmit('\n');
-			state = ESPERAR;
+			MENU = 0;
+			for (int i = 0; i < 13; i++)
+				{USART_Transmit(stringds[i]);}												// "Dibujando...\n"
+			PORTB |= (1 << SOL_PIN);						//>solenoide< ON
+			while (PASOS < 100)
+			{
+				for (int i = 0; i < 8; i++)													// Girar<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+				{
+					setStepX(i);
+					setStepY(i);
+					_delay_ms(150);															// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
+					PASOS++;
+				}
+			}
+			PASOS = 0;
+			_delay_ms(1500);
+			while (PASOS < 100)
+			{
+				for (int i = 0; i < 8; i++)													// Girar<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+				{
+					setStepX(i);
+					setStepY(8-i);
+					_delay_ms(150);															// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
+					PASOS++;
+				}
+			}
+			PASOS = 0;
+			_delay_ms(1500);
+			while (PASOS < 100)
+			{
+				for (int i = 8; i >= 0; i--)												// Girar<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+				{
+					setStepX(i);
+					setStepY(i);
+					_delay_ms(150);															// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
+					PASOS++;
+				}
+			}
+			PASOS = 0;
+			_delay_ms(1500);
+			while (PASOS < 100)
+			{
+				for (int i = 8; i >= 0; i--)												// Girar<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+				{
+					setStepX(i);
+					setStepY(8-i);
+					_delay_ms(150);															// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
+					PASOS++;
+				}
+			}
+			PASOS = 0;
+			_delay_ms(1500);
+			state = ESPERAR;																// Volver a MENU, seleccion de opciones
+			MENU = 1;
+			for (int i = 0; i < 17; i++)
+				{USART_Transmit(stringdf[i]);}												// "Dibujo terminado\n"
+			PORTB &= ~(1 << SOL_PIN);						//>solenoide< OFF
 			break;
+		//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>SINUSOIDE
 		case ESTADO_OPCION_4:
-			USART_Transmit('4');
-			USART_Transmit('e');
-			USART_Transmit('f');
-			USART_Transmit('\n');
+			MENU = 0;
+			setStepX(7);// Energizar motores (paso 0)
+			setStepY(7);// Energizar motores (paso 0)
+		
+			circulopasosX(16);// 16 pasos eje x (comienza desde 0, al llegar a 16 se detiene, por lo que se ejecutan 16 pasos, sucede lo mismo en todos)
+			circulopasosY(1);// 1 paso en eje y
+		
+			circulopasosX(11);// 11 pasos eje x (ultimo comentario, ya se entiende)
+			circulopasosY(1);
+		
+			circulopasosX(8);
+			circulopasosY(1);
+
+			circulopasosX(7);
+			circulopasosY(1);
+
+			for (int i = 0; i < 3;i++){// Se repite 3 veces la secuencia de 5 pasos en eje x, 1 en eje y
+				circulopasosX(5);
+			circulopasosY(1);}
+
+			for (int i = 0; i < 2;i++){
+				circulopasosX(4);
+				circulopasosY(1);}
+
+			circulopasosX(3);
+			circulopasosY(1);
+
+			circulopasosX(4);
+			circulopasosY(1);
+
+			for	(int i = 0; i < 5;i++){
+				circulopasosX(3);
+				circulopasosY(1);}
+
+			for (int i = 0; i < 2;i++){
+				circulopasosX(2);
+				circulopasosY(1);
+				circulopasosX(3);
+				circulopasosY(1);}
+
+			for (int i = 0; i < 2;i++){
+				circulopasosX(2);
+				circulopasosY(1);}
+
+			circulopasosX(3);
+			circulopasosY(1);
+
+			for (int i = 0; i < 8;i++){
+				circulopasosX(2);
+				circulopasosY(1);}
+
+			circulopasosX(1);
+			circulopasosY(1);
+
+			for (int i = 0; i < 3;i++){
+				circulopasosX(2);
+				circulopasosY(1);}
+
+			circulopasosX(1);
+			circulopasosY(1);
+
+			for (int i = 0; i < 2;i++){
+				circulopasosX(2);
+				circulopasosY(1);}
+
+			for (int i = 0; i < 5;i++){
+				circulopasosX(1);
+				circulopasosY(1);
+				circulopasosX(2);
+				circulopasosY(1);}
+
+			for (int i = 0; i < 2;i++){
+				circulopasosX(1);
+				circulopasosY(1);}
+
+			circulopasosX(2);
+			circulopasosY(1);
+
+			for (int i = 0; i < 2;i++){
+				circulopasosX(1);
+				circulopasosY(1);}
+
+			circulopasosX(2);
+			circulopasosY(1);
+
+			for (int i = 0; i < 3;i++){
+				circulopasosX(1);
+				circulopasosY(1);}
+
+			circulopasosX(2);
+			circulopasosY(1);
+
+			for (int i = 0; i < 6;i++){
+				circulopasosX(1);
+				circulopasosY(1);}
+
+			circulopasosX(2);
+			circulopasosY(1);
+
+			for (int i = 0; i < 9;i++){
+				circulopasosX(1);
+				circulopasosY(1);}
+
+		// 1/8 de circulo, en adelante es el mismo codigo en espejo, invirtiendo los ejes, para completar 1/4 de circulo
+
+			for (int i = 0; i < 9;i++){
+				circulopasosY(1);
+				circulopasosX(1);}
+
+			circulopasosY(2);
+			circulopasosX(1);
+
+			for (int i = 0; i < 6;i++){
+				circulopasosY(1);
+				circulopasosX(1);}
+
+			circulopasosY(2);
+			circulopasosX(1);
+
+			for (int i = 0; i < 3;i++){
+				circulopasosY(1);
+				circulopasosX(1);}
+
+			circulopasosY(2);
+			circulopasosX(1);
+
+			for (int i = 0; i < 2;i++){
+				circulopasosY(1);
+				circulopasosX(1);}
+
+			circulopasosY(2);
+			circulopasosX(1);
+
+			for (int i = 0; i < 2;i++){
+				circulopasosY(1);
+				circulopasosX(1);}
+
+			for (int i = 0; i < 5;i++){
+				circulopasosY(2);
+				circulopasosX(1);
+				circulopasosY(1);
+				circulopasosX(1);}
+
+			for (int i = 0; i < 2;i++){
+				circulopasosY(2);
+				circulopasosX(1);}
+
+			circulopasosY(1);
+			circulopasosX(1);
+
+			for (int i = 0; i < 3;i++){
+				circulopasosY(2);
+				circulopasosX(1);}
+
+			circulopasosY(1);
+			circulopasosX(1);
+
+			for (int i = 0; i < 8;i++){
+				circulopasosY(2);
+				circulopasosX(1);}
+
+			circulopasosY(3);
+			circulopasosX(1);
+
+			for (int i = 0; i < 2;i++){
+				circulopasosY(2);
+				circulopasosX(1);}
+
+			for (int i = 0; i < 2;i++){
+				circulopasosY(3);
+				circulopasosX(1);
+				circulopasosY(2);
+				circulopasosX(1);}
+
+			for (int i = 0; i < 5;i++){
+				circulopasosY(3);
+				circulopasosX(1);}
+
+			circulopasosY(4);
+			circulopasosX(1);
+
+			circulopasosY(3);
+			circulopasosX(1);
+
+			for (int i = 0; i < 2;i++){
+				circulopasosY(4);
+				circulopasosX(1);}
+
+			for (int i = 0; i < 3;i++){
+				circulopasosY(5);
+				circulopasosX(1);}
+
+			circulopasosY(7);
+			circulopasosX(1);
+
+			circulopasosY(8);
+			circulopasosX(1);
+
+			circulopasosY(11);
+			circulopasosX(1);
+
+			circulopasosY(16);
+			circulopasosX(1);
+		// 1/4 de circulo completo
 			state = ESPERAR;
+			MENU = 1;
 			break;
+		//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>MODO LIBRE
 		case MODO_LIBRE:
-			USART_Transmit('l');
-			USART_Transmit('e');
-			USART_Transmit('l');
-			USART_Transmit('\n');
+			MENU = 0;
+			LIBRE = 1;
+			for (int i = 0; i < 12; i++)
+				{USART_Transmit(strings[i]);}												// "Modo Libre: Activado\n"
 			state = ESPERAR;
+			PORTB |= (1 << SOL_PIN);						//>solenoide< ON
 			break;
 	}
-}
+}															//>UART<
 
 //????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
-
+// Codigo_principal
 int main(void)
 {
 															//>motor1<
@@ -252,10 +619,10 @@ int main(void)
 	DDRD |= (1 << YIN1) | (1 << YIN2) | (1 << YIN3) | (1 << YIN4);							// Configura los pines de control del puente HY como salidas
 															//>motor2<
 
-															//>interupciones<
+															//>interrupciones<
 	DDRD &= ~((1 << BOTON1_PIN) | (1 << BOTON2_PIN));										// Configurar pines de entrada para los botones
 	ConfigInterrupciones();																	// Llamada a la funcion configinterupciones
-															//>interupciones<
+															//>interrupciones<
 
 															//>solenoide<
 	DDRB |= (1 << SOL_PIN);																	// Configura pin solenoide como salida
@@ -267,175 +634,155 @@ int main(void)
 
 	while (1)
 	{
-		handle_state();
-		/*//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-		while (Auxb1==1)
-			for (int i = 0; i < 8; i++)														// Girar derechaY abajoX
-			{
-				setStepX(i);
-				setStepY(i);
-				_delay_ms(150);																// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
-			}
-		
-		//while (Auxb2==1)
-		for (int i = 8; i >= 0; i--)														// Girar en sentido antihorario
+		//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+		if (MENU==1)
 		{
-			setStepX(i);
-			setStepY(i);
-			_delay_ms(150);																	// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
+			handle_state();
 		}
-		
-		*///>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-		
-		/*//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	    PORTB |= (1 << SOL_PIN);							//>solenoide<
-	    
-	    _delay_ms(2000);
-	    
-	    PORTB &= ~(1 << SOL_PIN);
-	    
-	    _delay_ms(2000);									//>solenoide<
-		*///>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+		//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+		if (LIBRE==1)
+		{
+			while (derecha==1)
+			{
+				if (izquierda == 1)
+				{
+					MENU = 1;
+					LIBRE = 0;
+					derecha = 0;
+					izquierda = 0;
+					for (int i = 0; i < 24; i++)
+						{USART_Transmit(stringf[i]);}										// "Modo Libre: Desactivado\n"
+					PORTB &= ~(1 << SOL_PIN);				//>solenoide< OFF
+				}
+				for (int i = 0; i < 8; i++)													// Girar<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+				{
+					//setStepX(i);
+					setStepY(i);
+					_delay_ms(150);															// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
+				}
+			}
+			while (izquierda==1)
+			{
+				if (derecha == 1)
+				{
+					MENU = 1;
+					LIBRE = 0;
+					derecha = 0;
+					izquierda = 0;
+					for (int i = 0; i < 24; i++)
+						{USART_Transmit(stringf[i]);}										// "Modo Libre: Desactivado\n"
+					PORTB &= ~(1 << SOL_PIN);				//>solenoide< OFF
+				}
+				for (int i = 8; i >= 0; i--)												// Girar<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+				{
+					//setStepX(i);
+					setStepY(i);
+					_delay_ms(150);															// Ajuste de tiempo entre pasos (filas) según la velocidad deseada
+				}
+			}
+		}
+		//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	}
 
 	return 0;
 }
 //????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
-
-																							// Rutina de servicio de interrupción para boton1
+// Rutina_interrupción_boton1
 ISR(INT0_vect)
-{															//>interupciones<
-	
-	_delay_ms(1000);
-	selectedOption = (selectedOption + 1) % 5;
-	switch (selectedOption)
+{															//>interrupciones<
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>MENU>>
+	if (MENU==1)
 	{
-		case 0:
-		USART_Transmit('1');
-		USART_Transmit(':');
-		USART_Transmit(' ');
-		USART_Transmit('D');
-		USART_Transmit('i');
-		USART_Transmit('b');
-		USART_Transmit('u');
-		USART_Transmit('j');
-		USART_Transmit('o');
-		USART_Transmit(' ');
-		USART_Transmit('1');
-		USART_Transmit('\n');
-		break;
-		case 1:
-		USART_Transmit('2');
-		USART_Transmit(':');
-		USART_Transmit(' ');
-		USART_Transmit('D');
-		USART_Transmit('i');
-		USART_Transmit('b');
-		USART_Transmit('u');
-		USART_Transmit('j');
-		USART_Transmit('o');
-		USART_Transmit(' ');
-		USART_Transmit('2');
-		USART_Transmit('\n');
-		break;
-		case 2:
-		USART_Transmit('3');
-		USART_Transmit(':');
-		USART_Transmit(' ');
-		USART_Transmit('D');
-		USART_Transmit('i');
-		USART_Transmit('b');
-		USART_Transmit('u');
-		USART_Transmit('j');
-		USART_Transmit('o');
-		USART_Transmit(' ');
-		USART_Transmit('3');
-		USART_Transmit('\n');
-		break;
-		case 3:
-		USART_Transmit('4');
-		USART_Transmit(':');
-		USART_Transmit(' ');
-		USART_Transmit('D');
-		USART_Transmit('i');
-		USART_Transmit('b');
-		USART_Transmit('u');
-		USART_Transmit('j');
-		USART_Transmit('o');
-		USART_Transmit(' ');
-		USART_Transmit('4');
-		USART_Transmit('\n');
-		break;
-		case 4:
-		USART_Transmit('4');
-		USART_Transmit(':');
-		USART_Transmit(' ');
-		USART_Transmit('M');
-		USART_Transmit('o');
-		USART_Transmit('d');
-		USART_Transmit('o');
-		USART_Transmit(' ');
-		USART_Transmit('l');
-		USART_Transmit('i');
-		USART_Transmit('b');
-		USART_Transmit('r');
-		USART_Transmit('e');
-		USART_Transmit('\n');
-		break;
+		_delay_ms(1000);
+		selectedOption = (selectedOption + 1) % 5;
+		switch (selectedOption)																// Seleccion de menu
+		{
+			case 0:
+				for (int i = 0; i < 12; i++)
+					{USART_Transmit(string1[i]);}											// "1: Dibujo 1\n"
+				break;
+			case 1:
+				for (int i = 0; i < 12; i++)
+					{USART_Transmit(string2[i]);}											// "2: Dibujo 2\n"
+				break;
+			case 2:
+				for (int i = 0; i < 12; i++)
+					{USART_Transmit(string3[i]);}											// "3: Dibujo 3\n"
+				break;
+			case 3:
+				for (int i = 0; i < 12; i++)
+					{USART_Transmit(string4[i]);}											// "4: Dibujo 4\n"
+				break;
+			case 4:
+				for (int i = 0; i < 14; i++)
+					{USART_Transmit(stringml[i]);}											// "5: Modo Libre\n"
+				break;
+		}
+		_delay_ms(1000);
+	}
+	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<MENU>>
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>LIBRE>
+	if (LIBRE==1)
+	{
+		_delay_ms(1000);
+		if (derecha == 1)
+		{
+			derecha = 0;
+		}
+		else
+		{
+			derecha = 1;
+		}
+		_delay_ms(1000);
+	}
+	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<LIBRE>
+}															//>interrupciones<
 
-	}
-	
-	/*//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	_delay_ms(30);
-	if (Aux1 == 1)
-	{
-		Aux1 = 0;
-	}
-	else
-	{
-		Aux1 = 1;
-	}
-	_delay_ms(30);
-	*///>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-}															//>interupciones<
-
-																							// Rutina de servicio de interrupción para boton2
+//????????????????????????????????????????????????????????????????????????????????????????//-----------------------------------------------------------------------------//
+// Rutina_interrupción_boton2
 ISR(INT1_vect)
-{															//>interupciones<
-	
-	_delay_ms(1000);
-	switch (selectedOption)
+{															//>interrupciones<
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>MENU>>
+	if (MENU==1)
 	{
-		case 0:
-		state = ESTADO_OPCION_1;
-		break;
-		case 1:
-		state = ESTADO_OPCION_2;
-		break;
-		case 2:
-		state = ESTADO_OPCION_3;
-		break;
-		case 3:
-		state = ESTADO_OPCION_4;
-		break;
-		case 4:
-		state = MODO_LIBRE;
-		break;
+		_delay_ms(1000);
+		switch (selectedOption)																// Ejecucion de menu
+		{
+			case 0:
+				state = ESTADO_OPCION_1;													// Ejecucion codigo dibujo 1
+				break;
+			case 1:
+				state = ESTADO_OPCION_2;													// Ejecucion codigo dibujo 2
+				break;
+			case 2:
+				state = ESTADO_OPCION_3;													// Ejecucion codigo dibujo 3
+				break;
+			case 3:
+				state = ESTADO_OPCION_4;													// Ejecucion codigo dibujo 4
+				break;
+			case 4:
+				state = MODO_LIBRE;															// Inicio modo libre
+				break;
+		}
+		_delay_ms(1000);
 	}
-	
-	/*//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	_delay_ms(30);
-	if (Aux2 == 1)
+	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<MENU>>
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>LIBRE>
+	if (LIBRE==1)
 	{
-		Aux2 = 0;
+		_delay_ms(1000);
+		if (izquierda == 1)
+		{
+			izquierda = 0;
+		}
+		else
+		{
+			izquierda = 1;
+		}
+		_delay_ms(1000);
 	}
-	else
-	{
-		Aux2 = 1;
-	}
-	_delay_ms(30);
-	*///>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-}															//>interupciones<
+	//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<LIBRE>
+}															//>interrupciones<
 
 
 
@@ -520,42 +867,5 @@ ISR(INT1_vect)
 		{0, 1, 0, 0},
 		{1, 0, 0, 1},
 		{0, 0, 0, 1}
-		
-				{1, 0, 0, 0},
-				{1, 0, 1, 0},
-				{0, 0, 1, 0},
-				{0, 1, 1, 0},
-				{0, 1, 0, 0},
-				{0, 1, 0, 1},
-				{0, 0, 0, 1},
-				{1, 0, 0, 1}
 -------------------------------------
-*/
-/*
-tx 1 salida			PD1
-13 salida			PB5
-a0 salida			PC0
-a1 salida			PC1
-a2 entrada y1 axis	PC2
-a3 entrada y2 axis	PC3
-a4 entrada x1 axis	PC4
-a5 entrada x2 axis	PC5
-DDRD &= ~(1 << PIN_ENTRADA);
-
-
-
-// Definir pines de interés
-#define PIN_SALIDA PD2
-#define PIN_ENTRADA PD3
-
-// Configurar PIN_SALIDA como salida
-DDRD |= (1 << PIN_SALIDA);
-
-// Configurar PIN_ENTRADA como entrada (sin resistencia de pull-up)
-DDRD &= ~(1 << PIN_ENTRADA);
-
-// O, si se desea usar resistencia de pull-up en PIN_ENTRADA
-// DDRD &= ~(1 << PIN_ENTRADA); // Configurar como entrada
-// PORTD |= (1 << PIN_ENTRADA); // Activar resistencia de pull-up
-
 */
